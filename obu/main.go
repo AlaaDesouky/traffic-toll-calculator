@@ -1,13 +1,14 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"math"
 	"math/rand"
+	"os"
 	"time"
 	"traffic-toll-calculator/types"
 
+	"github.com/gorilla/websocket"
 	"github.com/joho/godotenv"
 )
 
@@ -27,6 +28,12 @@ func init() {
 func main() {
 	obuIDS := generateOBUIDS(obuIDSCount)
 
+	ws_endpoint := os.Getenv("WS_ENDPOINT")
+	conn, _, err := websocket.DefaultDialer.Dial(ws_endpoint, nil)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	for {
 		for _, obuID := range obuIDS {
 			lat, lng := generateLatLng()
@@ -35,7 +42,10 @@ func main() {
 				Lat: lat,
 				Lng: lng,
 			}
-			fmt.Printf("%+v\n", data)
+			log.Println("sending data over ws...")
+			if err := conn.WriteJSON(data); err != nil {
+				log.Fatal(err)
+			}
 		} 
 		time.Sleep(sendInterval)
 	}
