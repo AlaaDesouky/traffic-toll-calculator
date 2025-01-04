@@ -13,7 +13,7 @@ import (
 )
 
 var (
-	obuIDSCount = 20
+	obuIDSCount  = 20
 	sendInterval = time.Second * 5
 )
 
@@ -39,14 +39,14 @@ func main() {
 			lat, lng := generateLatLng()
 			data := types.OBUData{
 				OBUID: obuID,
-				Lat: lat,
-				Lng: lng,
+				Lat:   lat,
+				Lng:   lng,
 			}
 			log.Println("sending data over ws...")
 			if err := conn.WriteJSON(data); err != nil {
 				log.Fatal(err)
 			}
-		} 
+		}
 		time.Sleep(sendInterval)
 	}
 }
@@ -62,7 +62,7 @@ func generateLatLng() (float64, float64) {
 	return generateCoord(), generateCoord()
 }
 
-func generateOBUIDS(n int) [] int {
+func generateOBUIDS(n int) []int {
 	ids := make([]int, n)
 	for i := range n {
 		ids[i] = rand.Intn(math.MaxInt)

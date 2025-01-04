@@ -35,10 +35,10 @@ func main() {
 
 type DataReceiver struct {
 	msgCh chan types.OBUData
-	conn *websocket.Conn
+	conn  *websocket.Conn
 }
 
-func NewDataReceiver() (*DataReceiver) {
+func NewDataReceiver() *DataReceiver {
 	return &DataReceiver{
 		msgCh: make(chan types.OBUData, 128),
 	}
@@ -46,7 +46,7 @@ func NewDataReceiver() (*DataReceiver) {
 
 func (dr *DataReceiver) handleWS(w http.ResponseWriter, r *http.Request) {
 	u := websocket.Upgrader{
-		ReadBufferSize: bufferSize,
+		ReadBufferSize:  bufferSize,
 		WriteBufferSize: bufferSize,
 	}
 
