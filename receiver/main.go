@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"math"
 	"math/rand"
@@ -23,10 +24,12 @@ func init() {
 }
 
 func main() {
-	recv := NewDataReceiver()
+	recv, err := NewDataReceiver()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	http.HandleFunc("/ws", recv.handleWS)
-
 	ws_port := os.Getenv("WS_PORT")
 
 	log.Printf("starting ws connection on port: %s\n", ws_port)
@@ -36,12 +39,29 @@ func main() {
 type DataReceiver struct {
 	msgCh chan types.OBUData
 	conn  *websocket.Conn
+	prod  DataProducer
 }
 
-func NewDataReceiver() *DataReceiver {
+func NewDataReceiver() (*DataReceiver, error) {
+	var (
+		p          DataProducer
+		err        error
+		kafkaTopic = "obudata"
+	)
+
+	p, err = NewKafkaProducer(kafkaTopic)
+	if err != nil {
+		return nil, err
+	}
+
 	return &DataReceiver{
 		msgCh: make(chan types.OBUData, 128),
-	}
+		prod:  p,
+	}, nil
+}
+
+func (dr *DataReceiver) produceData(data types.OBUData) error {
+	return dr.prod.ProduceData(data)
 }
 
 func (dr *DataReceiver) handleWS(w http.ResponseWriter, r *http.Request) {
@@ -71,5 +91,9 @@ func (dr *DataReceiver) wsReceiverLoop() {
 
 		data.RequestID = rand.Intn(math.MaxInt)
 		log.Printf("received data: %+v", data)
+
+		if err := dr.produceData(data); err != nil {
+			fmt.Println("kafka produce error: ", err)
+		}
 	}
 }
