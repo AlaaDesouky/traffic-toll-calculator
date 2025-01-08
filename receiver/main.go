@@ -54,6 +54,8 @@ func NewDataReceiver() (*DataReceiver, error) {
 		return nil, err
 	}
 
+	p = NewLogMiddleware(p)
+
 	return &DataReceiver{
 		msgCh: make(chan types.OBUData, 128),
 		prod:  p,
