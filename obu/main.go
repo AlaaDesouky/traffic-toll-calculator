@@ -39,8 +39,10 @@ func main() {
 			lat, lng := generateLatLng()
 			data := types.OBUData{
 				OBUID: obuID,
-				Lat:   lat,
-				Lng:   lng,
+				Point: types.Point{
+					Lat: lat,
+					Lng: lng,
+				},
 			}
 			log.Println("sending data over ws...")
 			if err := conn.WriteJSON(data); err != nil {
