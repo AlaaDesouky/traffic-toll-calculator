@@ -12,6 +12,8 @@ func main() {
 	)
 
 	svc = NewCalculatorService()
+	svc = NewLogMiddleware(svc)
+
 	kafkaConsumer, err := NewKafkaConsumer(types.OBUKafkaTopic, svc)
 	if err != nil {
 		log.Fatal(err)
