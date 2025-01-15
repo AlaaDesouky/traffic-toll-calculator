@@ -10,7 +10,11 @@ calculator: kafka
 	@go build -o bin/calculator ./calculator
 	@./bin/calculator
 
+aggregator:
+	@go build -o bin/aggregator ./aggregator
+	@./bin/aggregator
+
 kafka:
 	docker compose up -d
 
-.PHONY: calculator
+.PHONY: calculator aggregator
